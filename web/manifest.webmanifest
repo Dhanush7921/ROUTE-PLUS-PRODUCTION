@@ -1,0 +1,9 @@
+{
+  "name": "ROUTE+ — Keep the route. Discover more.",
+  "short_name": "ROUTE+",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbf8f1",
+  "theme_color": "#b54d23",
+  "icons": [{ "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

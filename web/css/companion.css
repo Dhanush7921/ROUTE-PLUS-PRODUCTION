@@ -1,0 +1,38 @@
+/* On-road companion: one column, big touch targets, glanceable numbers. */
+.companion .header { height: 64px; }
+.companion-main { max-width: 600px; margin: 0 auto; padding: var(--s4) var(--gutter) var(--s8); display: grid; gap: var(--s4); }
+.c-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s5); }
+.c-card h2 { font-size: 22px; margin: 4px 0 var(--s2); }
+.c-card h3 { font-size: 16px; }
+.c-card p { font-size: 15px; }
+.progress { height: 10px; border-radius: 99px; background: var(--surface-3); overflow: hidden; margin: var(--s3) 0 var(--s2); }
+.progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--orange), var(--primary)); border-radius: 99px; transition: width .3s; }
+.stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s3); }
+.stat-row div { background: var(--surface-2); border-radius: var(--radius-sm); padding: var(--s3); }
+.stat-row small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.stat-row strong { font-size: 18px; }
+.phase-now { display: inline-block; margin-top: var(--s2); padding: 4px 12px; border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary-hover); font-size: 13px; font-weight: 700; }
+.privacy-note { font-size: 13px !important; color: var(--muted); }
+.c-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s3); }
+.c-actions .button { flex: 1 1 140px; min-height: 48px; }
+.preview label { font-size: 13px; color: var(--muted); }
+.preview input[type=range] { padding: 0; min-height: 36px; accent-color: var(--primary); }
+.nearby-list { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: var(--s3); }
+.nearby { display: grid; grid-template-columns: 64px 1fr; gap: var(--s3); align-items: start; padding-bottom: var(--s3); border-bottom: 1px solid var(--border); }
+.nearby img { width: 64px; height: 64px; border-radius: var(--radius-sm); object-fit: cover; }
+.nearby h3 { font: 400 19px/1.2 var(--font-display); }
+.nearby .ahead { font-size: 13px; font-weight: 700; color: var(--primary); }
+.nearby .impact-row { margin: 6px 0; }
+.nearby .c-actions { grid-column: 1 / -1; margin-top: 0; }
+.nearby .c-actions .button { flex: 1 1 90px; min-height: 44px; }
+.alerts { display: grid; gap: var(--s2); }
+.alert { display: flex; gap: var(--s3); align-items: flex-start; padding: var(--s3) var(--s4); border-radius: var(--radius-sm); background: var(--light-yellow); border-left: 4px solid var(--amber); color: var(--warning); font-size: 14px; animation: rise .2s ease-out; }
+.alert.info { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-hover); }
+.alert button { margin-left: auto; min-width: 36px; min-height: 36px; font-size: 20px; }
+.feedback-card { background: var(--success-surface); border-radius: var(--radius-sm); padding: var(--s4); margin-top: var(--s3); }
+.feedback-card p { color: var(--success); margin-bottom: var(--s2); }
+.empty-state { text-align: center; }
+
+/* The header's Planner link is the one control always on screen while driving,
+   so give it a full-size tap target (it measured 38px tall). */
+.companion .header nav .button.small { min-height: 44px; }

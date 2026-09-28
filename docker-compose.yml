@@ -1,0 +1,35 @@
+# Local PostgreSQL + PostGIS for ROUTE+ development.
+#
+#   docker compose up -d
+#   cp .env.example .env          # then set DATABASE_URL (see below)
+#   npm run db:pg -- migrate && npm run db:pg -- verify
+#
+# This is ONLY the development database. ROUTE+ itself still runs with
+# `npm start` and works with no database service at all (SQLite).
+#
+# The password below is a local development value, deliberately obvious. Never
+# reuse it anywhere else, and never commit a real one — put production
+# credentials in the environment of whatever runs the app.
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: routeplus-db
+    environment:
+      POSTGRES_USER: routeplus
+      POSTGRES_DB: routeplus
+      POSTGRES_PASSWORD: routeplus_local_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - routeplus-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U routeplus -d routeplus"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  routeplus-pgdata:
+
+# DATABASE_URL for the .env file that matches this service:
+#   DATABASE_URL=postgres://routeplus:routeplus_local_dev@localhost:5432/routeplus?sslmode=disable

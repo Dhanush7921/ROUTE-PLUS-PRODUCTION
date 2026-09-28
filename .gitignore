@@ -1,0 +1,8 @@
+# Patterns are ANCHORED to the project root with a leading slash.
+# Without it, "data/" also matches shared/data/ — which silently drops
+# shared/data/places.js (CURATED_PLACES) from `git add .`, `git archive` and
+# any gitignore-aware copy tool, and `git clean -xdf` would delete it.
+/node_modules/
+/data/
+*.sqlite*
+.env

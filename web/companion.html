@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#b54d23">
+  <meta name="description" content="ROUTE+ on-road companion: where you are on your route, what is worth a stop next, and what it costs.">
+  <title>ROUTE+ Companion — On the road</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/dialogs.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/companion.css">
+  <script type="module" src="js/companion.js"></script>
+</head>
+<body class="companion">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <a class="logo" href="index.html" aria-label="ROUTE+ planner">ROUTE<span>+</span><small>ON-ROAD COMPANION</small></a>
+    <nav aria-label="Companion"><a class="button small" href="index.html">Planner</a></nav>
+  </header>
+  <main id="main" class="companion-main">
+    <!-- The cards below are each an h2, so the page needs its own h1 for a
+         screen reader to announce what this screen is. It is visually hidden
+         because the header logo already says it on screen. -->
+    <h1 class="sr-only">ROUTE+ on-road companion</h1>
+    <div id="alerts" class="alerts" aria-live="assertive"></div>
+    <section id="journey-card" class="c-card" aria-labelledby="c-journey-title"></section>
+    <section id="location-card" class="c-card" aria-labelledby="c-location-title"></section>
+    <section id="next-card" class="c-card" aria-labelledby="c-next-title"></section>
+    <section id="nearby-card" class="c-card" aria-labelledby="c-nearby-title"></section>
+    <section id="impact-card" class="c-card" aria-labelledby="c-impact-title"></section>
+  </main>
+  <dialog id="detail" class="detail-dialog" aria-labelledby="detail-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

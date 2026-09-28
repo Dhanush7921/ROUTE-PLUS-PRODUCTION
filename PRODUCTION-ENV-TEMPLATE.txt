@@ -1,0 +1,43 @@
+# Save this file as ".env" in the project root (rename it), then edit the values.
+# ROUTE+ production environment — copy to .env and fill in.
+# .env is git-ignored. Never commit it, never put secrets in source.
+
+NODE_ENV=production
+PORT=8080
+HOST=0.0.0.0
+
+# The address testers will actually open. https:// turns on Secure cookies + HSTS.
+PUBLIC_URL=https://beta.example.com
+
+# MUST be local disk. Not a network share, not OneDrive/Dropbox/Google Drive,
+# not a mounted drive — SQLite cannot lock files there and startup fails with
+# DB_UNAVAILABLE. Not inside this folder either: a redeploy would replace it.
+ROUTE_PLUS_DB=C:\routeplus-data\routeplus.sqlite
+
+# Required in production: the address you will sign up with becomes the admin.
+ADMIN_EMAILS=you@example.com
+
+LOG_LEVEL=info
+SESSION_DAYS=30
+SHUTDOWN_TIMEOUT_MS=10000
+
+# Only behind a reverse proxy YOU control that sets X-Forwarded-For.
+# TRUST_PROXY=1
+
+# ---- Live map providers (all optional; the app runs without them) ----------
+# The OpenStreetMap usage policy requires an identifying contact address.
+ROUTE_PLUS_CONTACT=you@example.com
+# ROUTE_PROVIDER=osrm
+# GEOCODING_PROVIDER=nominatim
+# PLACE_PROVIDER=overpass
+# OVERPASS_FALLBACK_URL=https://overpass.kumi.systems/api/interpreter
+# ROUTE_PLUS_LIVE_PROVIDERS=1
+# MAX_DETOUR_CANDIDATES=90
+
+# ---- Google (optional) -----------------------------------------------------
+# Server key: NEVER reaches the browser. Restrict it to Geocoding + Routes.
+# GOOGLE_MAPS_SERVER_KEY=
+# Browser key: restrict by HTTP referrer, Maps JavaScript API only.
+# GOOGLE_MAPS_BROWSER_KEY=
+# ROUTE_PROVIDER=google
+# GEOCODING_PROVIDER=google

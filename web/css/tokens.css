@@ -1,0 +1,65 @@
+/* ROUTE+ design tokens — the single source of truth for colour, type,
+   spacing, radius and shadow. Components use these variables only. */
+:root {
+  /* Warm neutrals */
+  --bg: #fbf8f1;
+  --surface: #fffdf8;
+  --surface-2: #f6efe2;
+  --surface-3: #f1e7d5;
+  --border: #e3dccd;
+  --border-strong: #cdbfa5;
+
+  /* Brand: amber → orange → terracotta, with gold and charcoal */
+  --primary: #b54d23;
+  --primary-hover: #9c4019;
+  --primary-soft: #f9e8d5;
+  --orange: #d9793a;
+  --amber: #e6ae58;
+  --gold: #c8962e;
+  --light-yellow: #fbefc9;
+  --brown: #7a4a2a;
+  --text: #2f2a22;
+  --muted: #6b665c;
+  --on-dark: #fffdf8;
+
+  /* Map */
+  --map-surface: #f1ecdd;
+  --map-land: #e9e2cd;
+  --map-grid: #ddd5bf;
+  --route-main: #b54d23;
+  --route-casing: #fffdf8;
+  --route-detour: #8a7658;
+  --route-selected: #b54d23;
+
+  /* Status */
+  --success: #2f6546;
+  --success-surface: #e4ecdf;
+  --warning: #7d4d10;
+  --warning-surface: #f8e8c4;
+  --danger: #8e3520;
+  --danger-surface: #f5dccd;
+  --error: #a33127;
+
+  /* Type */
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 19px;
+  --fs-xl: clamp(26px, 2.4vw, 32px);
+  --fs-hero: clamp(38px, 4.2vw, 60px);
+
+  /* Spacing scale (4px base) */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 8px rgba(52, 34, 14, .06);
+  --shadow: 0 14px 44px rgba(52, 34, 14, .08);
+  --backdrop: rgba(37, 36, 29, .6);
+  --focus: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary);
+
+  --page-max: 1360px;
+  --gutter: clamp(16px, 5vw, 64px);
+}

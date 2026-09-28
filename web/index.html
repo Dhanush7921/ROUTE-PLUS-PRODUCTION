@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ROUTE+ keeps your main route and shows worthwhile stops along the way — with the extra kilometres and time before you say yes.">
+  <meta name="theme-color" content="#fbf8f1">
+  <title>ROUTE+ — Keep the route. Discover more.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23b54d23'/%3E%3Ctext x='7' y='29' font-family='Arial' font-weight='900' font-size='26' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/landing.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/dialogs.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="header">
+    <a class="logo" href="#" data-action="home" aria-label="ROUTE+ home">ROUTE<span>+</span><small>KEEP THE ROUTE. DISCOVER MORE.</small></a>
+    <button id="menu-toggle" class="mobile-menu" aria-expanded="false" aria-controls="nav"><span aria-hidden="true">☰</span><span class="sr-only">Menu</span></button>
+    <nav id="nav" aria-label="Main">
+      <button data-action="explore">Explore</button>
+      <button data-action="how">How It Works</button>
+      <button data-action="saved">Saved Journeys</button>
+      <button data-action="about">About</button>
+      <button data-action="account" id="account-button" class="account-link" hidden>Sign in</button>
+    </nav>
+    <button class="button dark header-cta" data-action="start">Start Your Journey <span aria-hidden="true">↗</span></button>
+  </header>
+
+  <main id="main">
+    <div id="landing">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <span class="eyebrow"><span class="sun" aria-hidden="true">✳</span> ROUTE-AWARE DISCOVERY FOR INDIAN ROAD TRIPS</span>
+          <h1 id="hero-title">Your destination is the plan.<br><em>Everything worth discovering along the way is the opportunity.</em></h1>
+          <p>Keep your main route. Find meaningful stops. Know the extra time before you say yes.</p>
+          <div class="hero-actions">
+            <button class="button primary" data-action="start">Start Your Journey <span aria-hidden="true">→</span></button>
+            <button class="button" data-action="how">How It Works</button>
+          </div>
+          <div class="hero-foot"><svg class="mini-route" viewBox="0 0 120 30" aria-hidden="true"><path d="M8 20 H112" stroke="currentColor" stroke-width="3"/><path d="M60 20 Q70 4 86 6" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" fill="none"/><circle cx="8" cy="20" r="5" fill="currentColor"/><circle cx="112" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="86" cy="6" r="4" fill="currentColor"/></svg> Your route stays yours. Every stop is a choice.</div>
+        </div>
+        <div class="hero-image">
+          <img src="assets/images/hero.jpg" width="1400" height="933" alt="Illustrative artwork of a winding mountain road through a green Himalayan-style valley at golden hour">
+          <div class="image-top"><span>THE ROAD IS ONLY THE BEGINNING</span></div>
+          <div class="image-note">
+            <span class="eyebrow">MORE THAN A WAY THERE</span>
+            <h2>Make room for<br>the unexpected.</h2>
+            <p>One journey. A few worthwhile possibilities.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="entry" id="journey" aria-labelledby="entry-title">
+        <div class="section-intro">
+          <div>
+            <span class="eyebrow">YOUR NEXT JOURNEY</span>
+            <h2 id="entry-title">Where are you headed?</h2>
+          </div>
+          <button type="button" class="text-link" data-action="demo">Load Demo Journey <span aria-hidden="true">↗</span></button>
+        </div>
+        <form id="journey-form" novalidate>
+          <div class="form-grid">
+            <label>From
+              <input name="origin" list="cities" placeholder="Starting city" autocomplete="off" required>
+              <span class="error" id="error-origin"></span>
+            </label>
+            <label>To
+              <input name="destination" list="cities" placeholder="Destination" autocomplete="off" required>
+              <span class="error" id="error-destination"></span>
+            </label>
+            <label>Trip duration
+              <select name="tripDays"></select>
+              <span class="error" id="error-tripDays"></span>
+            </label>
+            <label>Traveller type
+              <select name="travelerType"></select>
+              <span class="error" id="error-travelerType"></span>
+            </label>
+          </div>
+          <datalist id="cities"></datalist>
+          <fieldset aria-describedby="error-interests">
+            <legend>What makes you take a detour? <span>Choose one or more interests</span></legend>
+            <div id="interest-options" class="chips"></div>
+            <span class="error" id="error-interests"></span>
+          </fieldset>
+          <div class="entry-bottom">
+            <span id="engine-note">✧ Every stop comes with its extra kilometres and minutes.</span>
+            <button class="button primary" id="generate" type="submit">Discover Along My Route <span aria-hidden="true">→</span></button>
+          </div>
+          <p id="form-status" role="status" aria-live="polite"></p>
+          <details class="sample-routes" id="sample-block">
+            <summary>Try another route</summary>
+            <div id="sample-routes" class="chips"></div>
+          </details>
+        </form>
+      </section>
+
+      <section id="how" class="how" aria-labelledby="how-title">
+        <div class="how-head">
+          <span class="eyebrow">KEEP THE ROUTE. DISCOVER MORE.</span>
+          <h2 id="how-title">A detour should be<br>worth your while.</h2>
+        </div>
+        <article><span>01</span><h3>Enter Your Journey</h3><p>Tell us where you start, where you are going, how long you have and what you love.</p></article>
+        <article><span>02</span><h3>Discover Along the Route</h3><p>We split the road into corridors and surface places that suit your group and interests.</p></article>
+        <article><span>03</span><h3>Understand the Detour</h3><p>Every stop shows extra kilometres, extra driving and time at the place — before you commit.</p></article>
+        <article><span>04</span><h3>Choose Your Experience</h3><p>Add or skip. Your trip recalculates, and you decide whether to keep or extend your days.</p></article>
+      </section>
+    </div>
+
+    <section id="dashboard" hidden aria-labelledby="route-title">
+      <div class="dashboard-top">
+        <div>
+          <span class="eyebrow" id="mode-label">YOUR ROUTE. YOUR POSSIBILITIES.</span>
+          <h1 id="route-title" tabindex="-1"></h1>
+          <p id="route-meta"></p>
+        </div>
+        <div class="actions">
+          <button class="button" data-action="new">New Journey</button>
+          <a class="button" href="companion.html" id="companion-link">On the Road ↗</a>
+          <button class="button dark" data-action="save">Save Journey</button>
+        </div>
+      </div>
+
+      <div id="summary" class="summary" aria-live="polite"></div>
+
+      <div class="workspace">
+        <div class="map-column">
+          <div class="map-header">
+            <div>
+              <span class="eyebrow">THE MAIN ROUTE</span>
+              <h2>Your road, and what lies beside it.</h2>
+            </div>
+            <span class="mock-label" id="map-label"></span>
+          </div>
+          <div class="map-scroll" tabindex="0" aria-label="Route map. Scroll sideways on small screens.">
+            <div id="map" class="map"></div>
+          </div>
+          <div class="map-legend">
+            <span><i class="solid" aria-hidden="true"></i>Main route</span>
+            <span><i class="dashed" aria-hidden="true"></i>Optional detour</span>
+            <span><i class="dot added" aria-hidden="true"></i>Added stop</span>
+            <span><i class="dot" aria-hidden="true"></i>Discovery</span>
+          </div>
+          <div id="phases" class="phases" role="group" aria-label="Route phases"></div>
+        </div>
+      </div>
+
+      <div class="discovery-layout">
+        <section aria-labelledby="discoveries-title">
+          <div class="section-intro">
+            <div>
+              <span class="eyebrow" id="phase-label"></span>
+              <h2 id="discoveries-title">Worth a stop?</h2>
+            </div>
+            <span id="result-count" class="result-count"></span>
+          </div>
+          <div id="filters" class="filters">
+            <label>Category<select id="filter-category"></select></label>
+            <label>Interest<select id="filter-interest"></select></label>
+            <label>Traveller fit<select id="filter-fit"><option value="all">Everyone</option><option value="mine">My traveller type</option></select></label>
+            <label>Extra distance<select id="filter-distance"><option value="all">Any distance</option><option value="10">Up to 10 km</option><option value="30">Up to 30 km</option><option value="60">Up to 60 km</option></select></label>
+            <label>Travel + visit<select id="filter-time"><option value="all">Any duration</option><option value="60">Up to 1 hour</option><option value="120">Up to 2 hours</option><option value="240">Up to 4 hours</option></select></label>
+          </div>
+          <div id="cards" class="cards"></div>
+        </section>
+        <aside id="selected" class="selected" aria-label="Your journey and trip impact"></aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="logo" href="#" data-action="home">ROUTE<span>+</span></a>
+    <p>Keep the route. Discover more.</p>
+    <button data-action="about">About ROUTE+</button>
+    <span>© 2026 ROUTE+</span>
+  </footer>
+
+  <dialog id="detail" class="detail-dialog" aria-labelledby="detail-title"></dialog>
+  <dialog id="warning" aria-labelledby="warning-title"></dialog>
+  <dialog id="saved" aria-labelledby="saved-title"></dialog>
+  <dialog id="account" aria-labelledby="account-title"></dialog>
+  <dialog id="about" aria-labelledby="about-title">
+    <button class="close" data-close="about" aria-label="Close">×</button>
+    <span class="eyebrow">WHAT ROUTE+ IS</span>
+    <h2 id="about-title">Keep the route.<br>Choose the experience.</h2>
+    <p>ROUTE+ is route-aware discovery. You already know where you are going. We show what is worth discovering beside that road, what each detour costs in kilometres and time, and whether it still fits your trip.</p>
+    <p>Recommendations use readable rules, not AI. Each card lists the reasons behind its score. Always confirm opening hours, road conditions and safety locally before you travel.</p>
+    <p id="about-mode"></p>
+    <button class="button primary" data-close="about">Got it</button>
+  </dialog>
+  <div id="impact-bar" class="impact-bar" hidden></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

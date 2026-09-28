@@ -1,0 +1,56 @@
+/* Dialogs: place detail (side panel on desktop, bottom sheet on mobile),
+   duration warning, saved journeys, account and about. */
+dialog {
+  width: min(560px, calc(100% - 32px)); max-height: 90vh; overflow: auto;
+  padding: var(--s6); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+dialog::backdrop { background: var(--backdrop); backdrop-filter: blur(3px); }
+dialog[open] { animation: rise .2s ease-out; }
+dialog h2 { margin: var(--s3) 0; }
+dialog p { margin: var(--s3) 0; font-size: 15px; }
+dialog .close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); font-size: 26px; line-height: 1; z-index: 2; box-shadow: var(--shadow-sm); }
+dialog .close:hover { background: var(--surface-2); }
+dialog .actions { margin-top: var(--s5); }
+dialog > h3, #account h3 { margin: var(--s5) 0 var(--s2); font-size: 16px; }
+
+/* Place detail: right-hand side panel on wide screens */
+.detail-dialog {
+  width: min(520px, 100%); height: 100vh; max-height: 100vh; margin: 0 0 0 auto;
+  padding: 0; border-radius: var(--radius-lg) 0 0 var(--radius-lg); border-right: 0;
+}
+.detail-dialog[open] { animation: slide-in .22s ease-out; }
+@keyframes slide-in { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.detail-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--surface-3); }
+.detail-content { padding: var(--s5) var(--s6) 0; }
+.detail-content h2 { font-size: 32px; margin: var(--s2) 0; }
+.detail-content h3 { font-size: 15px; margin: var(--s5) 0 var(--s2); }
+.detail-content ul { margin: 0; padding-left: 20px; font-size: var(--fs-sm); color: var(--muted); }
+.detail-impact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); margin-top: var(--s4); }
+.detail-impact div { padding: var(--s3); border-radius: var(--radius-sm); background: var(--primary-soft); }
+.detail-impact small, .detail-grid small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.detail-impact strong { font-size: 20px; color: var(--primary-hover); }
+.detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); padding: var(--s4); background: var(--surface-2); border-radius: var(--radius-sm); font-size: var(--fs-sm); }
+.caution { margin: var(--s4) 0; padding: var(--s3) var(--s4); border-left: 3px solid var(--amber); background: var(--light-yellow); color: var(--warning); font-size: var(--fs-sm); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.source-note { font-size: var(--fs-xs) !important; }
+.detail-actions { position: sticky; bottom: 0; display: flex; gap: var(--s2); padding: var(--s4) var(--s6); margin-top: var(--s5); background: var(--surface); border-top: 1px solid var(--border); }
+.detail-actions .button { flex: 1; }
+.score-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.score-table td { padding: 4px 0; border-bottom: 1px solid var(--border); }
+.score-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.feedback-row { display: flex; flex-wrap: wrap; gap: var(--s2); }
+
+/* Warning */
+.compare { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s3); margin: var(--s4) 0; }
+.compare div { padding: var(--s4); border-radius: var(--radius-sm); background: var(--surface-2); text-align: center; }
+.compare div.updated { background: var(--danger-surface); color: var(--danger); }
+.compare strong { display: block; font: 400 30px var(--font-display); }
+.compare small { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.why-list { font-size: var(--fs-sm); color: var(--muted); padding-left: 20px; }
+
+.saved-row { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); padding: var(--s4) 0; border-top: 1px solid var(--border); }
+.saved-row p { margin: 2px 0 0; font-size: 13px; }
+
+.auth-form { display: grid; gap: var(--s3); }
+.auth-switch { font-size: var(--fs-sm); }
+.auth-switch button { color: var(--primary); font-weight: 600; text-decoration: underline; min-height: 40px; }

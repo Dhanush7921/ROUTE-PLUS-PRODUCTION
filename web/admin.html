@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>ROUTE+ Operations</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/dialogs.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script type="module" src="js/admin.js"></script>
+</head>
+<body>
+  <header class="header">
+    <a class="logo" href="index.html">ROUTE<span>+</span><small>OPERATIONS</small></a>
+    <!-- Every section this page renders starts at h2, so it needs an h1.
+         Visually hidden (the logo already reads "ROUTE+ OPERATIONS"), and kept
+         in the header because admin.js replaces the whole contents of <main>. -->
+    <h1 class="sr-only">ROUTE+ operations</h1>
+    <nav aria-label="Admin sections" class="admin-nav">
+      <a href="#overview">Overview</a><a href="#places">Places</a><a href="#performance">Performance</a><a href="#feedback">Feedback</a><a href="#system">System</a>
+    </nav>
+  </header>
+  <main id="admin" class="admin-main">
+    <p id="admin-status" role="status">Loading…</p>
+  </main>
+  <dialog id="edit-place" aria-labelledby="edit-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
