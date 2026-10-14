@@ -9,16 +9,25 @@ const bool = v => ['1', 'true', 'yes', 'on'].includes(String(v || '').toLowerCas
 const num = (v, d) => (Number.isFinite(Number(v)) && v !== '' && v !== undefined ? Number(v) : d);
 
 export function loadConfig(env = process.env) {
+  // PUBLIC_URL is what turns on Secure cookies, HSTS and the same-origin check
+  // on writes. Hosts that generate the URL for you inject it, so read theirs as
+  // a fallback: a first deploy is then secure without anyone pasting the URL
+  // back into the environment. An explicit PUBLIC_URL always wins, which is
+  // what a custom domain needs. Resolved once, here, because everything
+  // derived from it must agree — reading env.PUBLIC_URL again further down is
+  // how a host-provided URL ended up with insecure cookies.
+  const publicUrl = (env.PUBLIC_URL || env.RENDER_EXTERNAL_URL || '').trim();
+
   const config = {
     root,
     env: env.NODE_ENV || 'development',
     port: num(env.PORT, 8080),
     host: env.HOST || '127.0.0.1',
-    publicUrl: env.PUBLIC_URL || '',
+    publicUrl,
     dbPath: env.ROUTE_PLUS_DB || path.join(root, 'data', 'routeplus.sqlite'),
     webRoot: path.join(root, 'web'),
     sharedRoot: path.join(root, 'shared'),
-    secureCookies: bool(env.SECURE_COOKIES) || (env.PUBLIC_URL || '').startsWith('https://'),
+    secureCookies: bool(env.SECURE_COOKIES) || publicUrl.startsWith('https://'),
     // Behind a reverse proxy (nginx, Caddy, a PaaS router) every request arrives
     // from the proxy's address, so rate limits would apply to all visitors
     // together. Set TRUST_PROXY=1 ONLY when a proxy you control sets

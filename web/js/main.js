@@ -19,6 +19,14 @@ bootMotion();
 if (app.state.plan) app.render();
 
 // Offline support for the planner and the on-road companion.
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+//
+// The STANDALONE build is a single file with no sw.js beside it, so registering
+// one there is a guaranteed 404. On file:// the guard below already skipped it;
+// served over https (GitHub Pages, any static host) it logged a console error
+// instead. The standalone build carries no <link rel="manifest">, so that is
+// the reliable way to tell the two apart — and a service worker would be no use
+// to a single self-contained file anyway.
+const servedAsApp = Boolean(document.querySelector('link[rel="manifest"]'));
+if (servedAsApp && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }

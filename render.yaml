@@ -1,0 +1,97 @@
+# ROUTE+ — Render blueprint.
+#
+# Reuses the repository's existing Dockerfile rather than a Node buildpack, so
+# what Render runs is what `docker build` runs locally: Node 22 Alpine, zero npm
+# dependencies, the entrypoint that fixes volume ownership and drops to the
+# non-root `routeplus` user, and the HEALTHCHECK that touches the database.
+#
+# Apply it: Render dashboard -> New -> Blueprint -> pick this repository.
+#
+# WHAT THIS BLUEPRINT DELIBERATELY DOES NOT DO
+#
+# It does not declare a database. Applying a blueprint that declares one would
+# provision it immediately, and the right choice is not something this file can
+# make for you:
+#   * Render's free PostgreSQL EXPIRES (it is deleted after its trial window),
+#     so it is fine for a staging soak and wrong as production storage.
+#   * A paid Render PostgreSQL is durable. Read the plan and price in Render's
+#     own dashboard — this file quotes no figures because none were verified.
+#   * An external managed PostgreSQL (Neon, Supabase, Aiven, …) also works; the
+#     application only needs a connection string.
+# Whichever you choose, paste its connection string into DATABASE_URL below.
+# PostGIS is OPTIONAL: `server/db/pg/schema.sql` creates the spatial objects
+# only when the postgis extension exists, and `placesRepo.near()` falls back to
+# earthdistance and then to a bounding box. Check PostGIS availability on the
+# plan you pick; without it, "places near me" still works, just without the
+# spatial index.
+#
+# MIGRATE BEFORE THE FIRST REAL TRAFFIC, from a machine that can reach the
+# database:
+#   DATABASE_URL=... npm run db:pg -- status      # connection, version, extensions
+#   DATABASE_URL=... npm run db:pg -- migrate     # schema + spatial objects
+#   DATABASE_URL=... npm run db:pg -- seed        # categories + curated places
+#   DATABASE_URL=... npm run db:pg -- import <file>   # optional: carry SQLite data over
+# ROUTE_PLUS_DB_MODE=postgres below means the service serves from PostgreSQL, so
+# an unmigrated database answers /api/health with "database":"error".
+
+services:
+  - type: web
+    name: route-plus
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main
+    autoDeploy: true
+    region: singapore          # closest Render region to Indian traffic
+    # The health check is the real one: /api/health runs a query, so a service
+    # that answers while its storage is broken is reported unhealthy rather
+    # than "up".
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # THE database switch. Without it the app serves from SQLite on the
+      # container filesystem, which Render replaces on every deploy — users,
+      # trips and feedback would vanish silently. Filling in DATABASE_URL alone
+      # does not change which backend serves requests.
+      - key: ROUTE_PLUS_DB_MODE
+        value: postgres
+
+      # Render terminates TLS at its router and sets X-Forwarded-For, so the
+      # rate limiter must read it or every visitor shares one bucket.
+      - key: TRUST_PROXY
+        value: "1"
+
+      - key: LOG_LEVEL
+        value: info
+
+      # PUBLIC_URL is intentionally absent. Render injects RENDER_EXTERNAL_URL,
+      # and server/config.js reads it as a fallback, so Secure cookies, HSTS and
+      # the same-origin write check switch themselves on at the first deploy.
+      # Set PUBLIC_URL explicitly ONLY when a custom domain replaces the
+      # onrender.com address — an explicit value always wins.
+
+      # Secrets and per-deployment values: Render prompts for each of these
+      # when the blueprint is applied and stores them encrypted. They are never
+      # written into this file.
+      - key: DATABASE_URL
+        sync: false            # postgres://user:password@host:5432/db?sslmode=require
+      - key: ADMIN_EMAILS
+        sync: false            # the address you will sign up with becomes the admin
+      - key: ROUTE_PLUS_CONTACT
+        sync: false            # required by the OpenStreetMap usage policy
+
+      # Live map providers stay OFF until real keys exist. The app runs on
+      # offline route data and the curated catalogue and says so in the startup
+      # log and in the UI — it does not fail. Set these later:
+      #   ROUTE_PROVIDER=google  GEOCODING_PROVIDER=google
+      #   GOOGLE_MAPS_SERVER_KEY   (server only — never reaches the browser)
+      #   GOOGLE_MAPS_BROWSER_KEY  (restricted to Maps JavaScript API by referrer)
+
+# Backups are NOT configured by this file. Managed PostgreSQL providers offer
+# their own; whichever you pick, verify a restore before relying on it:
+#   npm run db:backup            # pg_dump --format=custom + a manifest
+#   npm run db:restore:verify    # restores into a DISPOSABLE database and
+#                                # compares row counts against that manifest
