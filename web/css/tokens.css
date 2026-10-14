@@ -1,65 +1,122 @@
-/* ROUTE+ design tokens — the single source of truth for colour, type,
-   spacing, radius and shadow. Components use these variables only. */
+/* ROUTE+ design tokens — ROYAL NATURE.
+   The single source of truth for colour, type, spacing, radius, depth and
+   motion. Components use these variables only, which is why re-tinting the
+   whole product happens here and nowhere else.
+
+   Identity: warm ivory paper, champagne and antique gold, forest green and
+   earth brown — Indian nature and heritage as luxury travel editorial.
+   Deliberately NO blue in the brand or UI; blue appears only as the live-GPS
+   dot in the companion, where "you" must not read as "a stop". */
 :root {
-  /* Warm neutrals */
-  --bg: #fbf8f1;
-  --surface: #fffdf8;
-  --surface-2: #f6efe2;
-  --surface-3: #f1e7d5;
-  --border: #e3dccd;
-  --border-strong: #cdbfa5;
+  /* ---------------------------------------------------- warm neutrals */
+  --ivory: #FBF7EF;          /* warm ivory — the page */
+  --porcelain: #FFFFFF;      /* porcelain white — raised surfaces */
+  --bg: var(--ivory);
+  --surface: var(--porcelain);
+  --surface-2: #F5EFE3;
+  --surface-3: #EDE4D4;
+  --border: #E7DDC9;
+  --border-strong: #CDBB97;
 
-  /* Brand: amber → orange → terracotta, with gold and charcoal */
-  --primary: #b54d23;
-  --primary-hover: #9c4019;
-  --primary-soft: #f9e8d5;
-  --orange: #d9793a;
-  --amber: #e6ae58;
-  --gold: #c8962e;
-  --light-yellow: #fbefc9;
-  --brown: #7a4a2a;
-  --text: #2f2a22;
-  --muted: #6b665c;
-  --on-dark: #fffdf8;
+  /* ---------------------------------------------------- gold, earth, forest */
+  --champagne: #D8B16A;      /* champagne gold — decorative, rules, glints */
+  --gold-antique: #A9722C;   /* antique gold — accents on ivory */
+  --amber-warm: #E99A35;     /* warm amber — sunrise, highlights */
+  --earth: #76523A;          /* earth brown */
+  --forest: #345342;         /* forest green */
+  --forest-light: #4A6350;   /* forest, lifted — gradient partner */
+  --stone: #786F64;          /* muted stone */
+  --charcoal: #24211E;       /* dark charcoal — text */
 
-  /* Map */
-  --map-surface: #f1ecdd;
-  --map-land: #e9e2cd;
-  --map-grid: #ddd5bf;
-  --route-main: #b54d23;
-  --route-casing: #fffdf8;
-  --route-detour: #8a7658;
-  --route-selected: #b54d23;
+  /* Interactive gold is a shade darker than the decorative antique gold so
+     that white text on it clears AA (5.2:1) rather than sitting at 4.5:1. */
+  --primary: #8C5C20;
+  --primary-hover: #70481A;
+  --primary-soft: #F6E9CF;
+  --primary-ink: #7A4F1B;    /* gold as *text* on ivory — 5.6:1 */
 
-  /* Status */
-  --success: #2f6546;
-  --success-surface: #e4ecdf;
-  --warning: #7d4d10;
-  --warning-surface: #f8e8c4;
-  --danger: #8e3520;
-  --danger-surface: #f5dccd;
-  --error: #a33127;
+  /* Legacy names the existing components already reference. Keeping them
+     mapped is what re-tints every screen at once instead of touching 258
+     call sites. */
+  --orange: var(--amber-warm);
+  --amber: var(--champagne);
+  --gold: var(--gold-antique);
+  --light-yellow: #FAF0D8;
+  --brown: var(--earth);
+  --text: var(--charcoal);
+  --muted: var(--stone);
+  --on-dark: #FDFBF6;
 
-  /* Type */
-  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  /* ---------------------------------------------------- map */
+  --map-surface: #F3EDE0;
+  --map-land: #E8E0CC;
+  --map-grid: #DED3BA;
+  --route-main: #8C5C20;     /* the main road: gold, dominant */
+  --route-casing: #FFFFFF;
+  --route-detour: var(--forest);  /* optional: forest green, secondary */
+  --route-selected: #A9722C;
+  --gps: #2C6FD6;            /* the ONLY blue: live position */
+
+  /* ---------------------------------------------------- status */
+  --success: #2F6546;
+  --success-surface: #E3EDE4;
+  --warning: #7D4D10;
+  --warning-surface: #F8EBCB;
+  --danger: #8E3520;
+  --danger-surface: #F5DDCE;
+  --error: #A33127;
+
+  /* ---------------------------------------------------- type */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --fs-xs: 12px; --fs-sm: 14px; --fs-md: 16px; --fs-lg: 19px;
-  --fs-xl: clamp(26px, 2.4vw, 32px);
-  --fs-hero: clamp(38px, 4.2vw, 60px);
+  --fs-xl: clamp(26px, 2.4vw, 34px);
+  --fs-hero: clamp(38px, 4.6vw, 68px);
+  --ls-eyebrow: .18em;       /* editorial letter-spacing for small caps */
+  --ls-display: -.015em;     /* display serif wants slightly tighter tracking */
+  --lh-display: 1.08;
 
-  /* Spacing scale (4px base) */
+  /* ---------------------------------------------------- spacing (4px base) */
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  --s9: 96px;
 
-  /* Shape and depth */
+  /* ---------------------------------------------------- shape */
   --radius-sm: 8px;
   --radius: 14px;
-  --radius-lg: 20px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
   --radius-pill: 999px;
-  --shadow-sm: 0 2px 8px rgba(52, 34, 14, .06);
-  --shadow: 0 14px 44px rgba(52, 34, 14, .08);
-  --backdrop: rgba(37, 36, 29, .6);
+
+  /* ---------------------------------------------------- depth
+     Two-part shadows: a tight contact shadow plus a wide ambient one. That
+     pairing is what reads as a real object on paper rather than a blurred
+     rectangle. Tinted brown, never grey — grey shadows on ivory look dirty. */
+  --shadow-sm: 0 1px 2px rgba(60, 42, 20, .07), 0 2px 8px rgba(60, 42, 20, .05);
+  --shadow: 0 2px 4px rgba(60, 42, 20, .06), 0 14px 40px rgba(60, 42, 20, .09);
+  --shadow-lg: 0 4px 8px rgba(60, 42, 20, .07), 0 30px 70px rgba(60, 42, 20, .14);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .7);
+  --gloss: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,0) 42%);
+  --gold-rule: linear-gradient(90deg, transparent, var(--champagne), transparent);
+  --backdrop: rgba(36, 33, 30, .58);
   --focus: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary);
+
+  /* ---------------------------------------------------- motion
+     Short, confident, and all easing is a single family so unrelated
+     components still feel like one product in motion. */
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --t-fast: 140ms;
+  --t: 260ms;
+  --t-slow: 520ms;
+  --lift: translateY(-3px);
+  --tilt-max: 6deg;
 
   --page-max: 1360px;
   --gutter: clamp(16px, 5vw, 64px);
+}
+
+/* Every animation in the product is written so that turning it off here is
+   enough — nothing depends on an animation having run to become visible. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 1ms; --t: 1ms; --t-slow: 1ms; --lift: none; --tilt-max: 0deg; }
 }

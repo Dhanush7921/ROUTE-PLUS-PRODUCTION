@@ -164,15 +164,30 @@ Provider health and the product funnel are also on the admin dashboard
 ## 6. Backups
 
 ```bash
-npm run db:backup                 # → ./backups/routeplus-<timestamp>.sqlite
+npm run db:backup                 # → ./backups/routeplus-<timestamp>.sqlite  (sqlite mode)
+                                  # → ./backups/routeplus-<timestamp>.dump    (postgres mode)
 npm run db:backup -- /mnt/backups
+npm run db:restore:verify         # restore the newest backup into a disposable database and check it
 ```
 
-It uses SQLite's `VACUUM INTO`, which is safe while the server is running —
-unlike copying the file, which can catch a half-written page or miss the WAL.
-Take one before every deploy and keep a copy off the server. To restore: stop
-ROUTE+, copy the backup over `ROUTE_PLUS_DB`, delete any `-wal` / `-shm` files
-beside it, start again.
+Both commands follow `ROUTE_PLUS_DB_MODE`, so you cannot back up the wrong
+backend by forgetting which one is serving. In SQLite mode it uses `VACUUM INTO`,
+which is safe while the server is running — unlike copying the file, which can
+catch a half-written page or miss the WAL. In PostgreSQL mode it uses
+`pg_dump --format=custom` and needs `pg_dump`/`pg_restore` no older than the
+server; if they are missing it exits 3 and says how to install them.
+
+Every backup is timestamped, never overwrites an existing one, and gets a
+`<file>.json` manifest with its SHA-256, schema version, extensions and per-table
+row counts. `npm run db:restore:verify` restores into a throwaway
+`routeplus_restorecheck_*` database — never the configured one — and asserts the
+row counts match exactly. Take a backup before every deploy, keep a copy off the
+server, and verify it.
+
+To restore SQLite: stop ROUTE+, copy the backup over `ROUTE_PLUS_DB`, delete any
+`-wal` / `-shm` files beside it, start again. To restore PostgreSQL: create or
+empty the target database, `pg_restore --no-owner --dbname=<target> <file>`, start
+ROUTE+, check `/api/health`. See `PRODUCTION-RUNBOOK.md` for the full procedure.
 
 ## 7. Deploying an update
 

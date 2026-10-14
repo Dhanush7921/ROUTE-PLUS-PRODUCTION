@@ -39,7 +39,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .button.primary { background: var(--primary); border-color: var(--primary); color: var(--on-dark); }
 .button.primary:hover:not(:disabled) { background: var(--primary-hover); }
 .button.dark { background: var(--text); border-color: var(--text); color: var(--on-dark); }
-.button.dark:hover:not(:disabled) { background: #1e1a14; }
+.button.dark:hover:not(:disabled) { background: var(--charcoal); }
 .button.small { min-height: 38px; padding: 8px 14px; font-size: var(--fs-xs); }
 .button.danger { color: var(--danger); border-color: var(--danger-surface); }
 .text-link { display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; font-size: var(--fs-sm); font-weight: 600; border-bottom: 1px solid currentColor; }

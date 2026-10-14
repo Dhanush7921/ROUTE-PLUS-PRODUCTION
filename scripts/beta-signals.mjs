@@ -15,24 +15,60 @@
 import fs from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { loadConfig } from '../server/config.js';
+import { databaseMode } from '../server/db/runtime.js';
+import { createPool, pgConfig } from '../server/db/pg/client.js';
 import { EVENTS } from '../shared/events.js';
 
 const config = loadConfig();
 const days = Number(process.argv[2]) || 14;
-if (config.dbPath === ':memory:' || !fs.existsSync(config.dbPath)) {
-  console.error(`\n  No database at ${config.dbPath}. Set ROUTE_PLUS_DB or run the beta first.\n`);
-  process.exit(2);
+const mode = databaseMode();
+
+// Read the database the beta is ACTUALLY running on. Opening the SQLite file
+// unconditionally reported "no events yet" on a PostgreSQL deployment — an
+// empty report that looks like a product signal instead of a wrong backend.
+let db;
+let closeDb = async () => {};
+let pg = false;
+
+if (mode === 'postgres') {
+  const pgc = pgConfig(process.env);
+  if (!pgc.configured) {
+    console.error('\n  ROUTE_PLUS_DB_MODE=postgres but no PostgreSQL connection is configured (DATABASE_URL or PGHOST).\n');
+    process.exit(2);
+  }
+  const pool = createPool(pgc, { size: 1 });
+  db = pool;
+  pg = true;
+  closeDb = () => pool.end();
+} else {
+  if (config.dbPath === ':memory:' || !fs.existsSync(config.dbPath)) {
+    console.error(`\n  No database at ${config.dbPath}. Set ROUTE_PLUS_DB or run the beta first.\n`);
+    process.exit(2);
+  }
+  db = new DatabaseSync(config.dbPath, { readOnly: true });
+  closeDb = async () => db.close();
 }
-const db = new DatabaseSync(config.dbPath, { readOnly: true });
+
 const since = new Date(Date.now() - days * 86400_000).toISOString();
-const count = (sql, ...args) => db.prepare(sql).get(...args)?.n ?? 0;
+
+// One read helper per backend. Read-only on both: this script never writes.
+const all = async (sqliteSql, pgSql, params = []) =>
+  pg ? (await db.query(pgSql, params)).rows : db.prepare(sqliteSql).all(...params);
+const one = async (sqliteSql, pgSql, params = []) =>
+  pg ? (await db.query(pgSql, params)).rows[0] : db.prepare(sqliteSql).get(...params);
+const num = v => (v === null || v === undefined ? 0 : Number(v));
+const count = async (sqliteSql, pgSql, params = []) => num((await one(sqliteSql, pgSql, params))?.n);
 const bar = (n, max, width = 28) => '█'.repeat(max ? Math.max(n > 0 ? 1 : 0, Math.round(n / max * width)) : 0);
 
 console.log(`\nROUTE+ closed beta signals — last ${days} day(s)\n`);
 
-const events = db.prepare('SELECT name, count(*) AS n FROM analytics_events WHERE created_at >= ? GROUP BY name').all(since);
-const byName = Object.fromEntries(events.map(e => [e.name, e.n]));
-const total = events.reduce((a, e) => a + e.n, 0);
+const events = await all(
+  'SELECT name, count(*) AS n FROM analytics_events WHERE created_at >= ? GROUP BY name',
+  'SELECT name, count(*)::int AS n FROM analytics_events WHERE created_at >= $1::timestamptz GROUP BY name',
+  [since]
+);
+const byName = Object.fromEntries(events.map(e => [e.name, num(e.n)]));
+const total = events.reduce((a, e) => a + num(e.n), 0);
 
 if (!total) {
   console.log('  No events recorded yet. Signals appear as soon as a tester plans a journey.\n');
@@ -73,35 +109,69 @@ if (!total) {
 }
 
 // Which places testers engaged with, and what they said.
-const places = db.prepare(`SELECT place_id,
-    sum(name = 'discovery_opened') AS opened,
-    sum(name = 'discovery_added')  AS added,
-    sum(name = 'discovery_skipped') AS skipped
-  FROM analytics_events WHERE created_at >= ? AND place_id IS NOT NULL
-  GROUP BY place_id ORDER BY added DESC, opened DESC LIMIT 10`).all(since);
+const places = await all(
+  `SELECT place_id,
+      sum(name = 'discovery_opened') AS opened,
+      sum(name = 'discovery_added')  AS added,
+      sum(name = 'discovery_skipped') AS skipped
+    FROM analytics_events WHERE created_at >= ? AND place_id IS NOT NULL
+    GROUP BY place_id ORDER BY added DESC, opened DESC LIMIT 10`,
+  `SELECT place_id,
+      count(*) FILTER (WHERE name = 'discovery_opened')::int  AS opened,
+      count(*) FILTER (WHERE name = 'discovery_added')::int   AS added,
+      count(*) FILTER (WHERE name = 'discovery_skipped')::int AS skipped
+    FROM analytics_events WHERE created_at >= $1::timestamptz AND place_id IS NOT NULL
+    GROUP BY place_id ORDER BY added DESC, opened DESC LIMIT 10`,
+  [since]
+);
 if (places.length) {
   console.log('\n  most engaged places');
   for (const p of places) console.log(`    ${String(p.place_id).padEnd(34)} opened ${String(p.opened).padStart(3)}  added ${String(p.added).padStart(3)}  skipped ${String(p.skipped).padStart(3)}`);
 }
 
-const fb = db.prepare("SELECT count(*) AS n, sum(worth_it = 1) AS worth, sum(worth_it = 0) AS not_worth FROM feedback WHERE created_at >= ?").get(since);
-if (fb.n) {
-  console.log(`\n  "worth the detour?"  ${fb.worth || 0} yes / ${fb.not_worth || 0} no  (${fb.n} answer(s))`);
-  const comments = db.prepare("SELECT place_id, rating, comment FROM feedback WHERE created_at >= ? AND comment IS NOT NULL AND comment != '' ORDER BY id DESC LIMIT 10").all(since);
+const fb = await one(
+  'SELECT count(*) AS n, sum(worth_it = 1) AS worth, sum(worth_it = 0) AS not_worth FROM feedback WHERE created_at >= ?',
+  `SELECT count(*)::int AS n,
+          count(*) FILTER (WHERE worth_it)::int          AS worth,
+          count(*) FILTER (WHERE worth_it IS FALSE)::int AS not_worth
+     FROM feedback WHERE created_at >= $1::timestamptz`,
+  [since]
+);
+if (num(fb?.n)) {
+  console.log(`\n  "worth the detour?"  ${num(fb.worth)} yes / ${num(fb.not_worth)} no  (${num(fb.n)} answer(s))`);
+  const comments = await all(
+    "SELECT place_id, rating, comment FROM feedback WHERE created_at >= ? AND comment IS NOT NULL AND comment != '' ORDER BY id DESC LIMIT 10",
+    "SELECT place_id, rating, comment FROM feedback WHERE created_at >= $1::timestamptz AND comment IS NOT NULL AND comment <> '' ORDER BY id DESC LIMIT 10",
+    [since]
+  );
   if (comments.length) {
     console.log('\n  recent comments');
     for (const c of comments) console.log(`    [${c.place_id}${c.rating ? ` ${c.rating}★` : ''}] ${String(c.comment).slice(0, 100)}`);
   }
 }
 
-console.log(`\n  accounts: ${count('SELECT count(*) AS n FROM users')}  ·  saved trips: ${count('SELECT count(*) AS n FROM trips')}  ·  routes planned: ${count('SELECT count(*) AS n FROM routes WHERE created_at >= ?', since)}`);
-const providers = db.prepare("SELECT provider, method, count(*) AS n FROM routes WHERE created_at >= ? GROUP BY provider, method ORDER BY n DESC").all(since);
+const accounts = await count('SELECT count(*) AS n FROM users', 'SELECT count(*)::int AS n FROM users');
+const savedTrips = await count('SELECT count(*) AS n FROM trips', 'SELECT count(*)::int AS n FROM trips');
+const routesPlanned = await count(
+  'SELECT count(*) AS n FROM routes WHERE created_at >= ?',
+  'SELECT count(*)::int AS n FROM routes WHERE created_at >= $1::timestamptz',
+  [since]
+);
+console.log(`\n  accounts: ${accounts}  ·  saved trips: ${savedTrips}  ·  routes planned: ${routesPlanned}`);
+const providers = await all(
+  'SELECT provider, method, count(*) AS n FROM routes WHERE created_at >= ? GROUP BY provider, method ORDER BY n DESC',
+  'SELECT provider, method, count(*)::int AS n FROM routes WHERE created_at >= $1::timestamptz GROUP BY provider, method ORDER BY n DESC',
+  [since]
+);
 if (providers.length) {
   console.log('\n  which providers actually answered (beta honesty check)');
   for (const p of providers) console.log(`    ${p.provider.padEnd(18)} ${p.method.padEnd(14)} ${p.n} route(s)`);
 }
-const detours = db.prepare("SELECT method, count(*) AS n FROM detour_calculations GROUP BY method").all();
+const detours = await all(
+  'SELECT method, count(*) AS n FROM detour_calculations GROUP BY method',
+  'SELECT method, count(*)::int AS n FROM detour_calculations GROUP BY method'
+);
 if (detours.length) console.log(`  detour figures: ${detours.map(d => `${d.method} ${d.n}`).join(', ')}`);
 
 console.log('\n  See BETA-TEST-PLAN.md for what to do with these numbers.\n');
-db.close();
+await closeDb();

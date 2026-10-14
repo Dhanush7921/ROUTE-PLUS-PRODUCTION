@@ -15,7 +15,7 @@
 .hero-image {
   position: relative; min-height: 540px; overflow: hidden;
   border-radius: 120px var(--radius) var(--radius) var(--radius);
-  background: linear-gradient(160deg, #7e8a63, #3d4a36); color: var(--on-dark);
+  background: linear-gradient(160deg, var(--forest-light), var(--forest)); color: var(--on-dark);
   box-shadow: var(--shadow);
 }
 .hero-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,34,32,.1) 35%, rgba(23,37,30,.82)); }
@@ -23,9 +23,9 @@
 .image-top, .image-note { position: absolute; z-index: 1; }
 .image-top { top: 34px; left: 64px; right: 28px; font-size: 11px; letter-spacing: .16em; }
 .image-note { left: 36px; right: 28px; bottom: 40px; }
-.image-note .eyebrow { color: #f4dbab; }
+.image-note .eyebrow { color: var(--champagne); }
 .image-note h2 { font-size: clamp(30px, 3vw, 42px); line-height: 1.1; margin: var(--s3) 0; }
-.image-note p { color: #efe9da; font-size: var(--fs-sm); }
+.image-note p { color: var(--surface-2); font-size: var(--fs-sm); }
 
 .entry {
   width: calc(100% - 2 * var(--gutter)); max-width: calc(var(--page-max) - 2 * var(--gutter)); margin: 0 auto var(--s8);

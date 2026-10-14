@@ -4,7 +4,7 @@
 import http from 'node:http';
 import { pathToFileURL } from 'node:url';
 import { loadConfig } from './config.js';
-import { openDatabase } from './db/database.js';
+import { openRuntimeDatabase } from './db/runtime.js';
 import { buildProviders, describeProviders } from './providers/index.js';
 import { createApp } from './app.js';
 import { createLogger } from './lib/observability.js';
@@ -25,24 +25,35 @@ export async function startServer(overrides = {}, env = process.env, { fetchImpl
   // is wrong. Anything merely risky for a public beta comes back as a warning.
   const configWarnings = assertConfig(config, env);
   const logger = createLogger(config.logLevel);
-  const db = openDatabase(config.dbPath);
+  const runtime = await openRuntimeDatabase({
+    env,
+    sqlitePath: config.dbPath
+  });
+  const db = runtime.db;
   let app;
   const providers = buildProviders(config, { onEvent: e => app?.metrics.provider(e), fetchImpl });
   app = createApp({ config, db, providers, logger });
   const server = http.createServer((req, res) => app.handle(req, res));
 
-  // PRODUCTION DATABASE (Step 6). SQLite serves requests; when PostgreSQL is
-  // configured we report whether it is reachable and what it has installed, so
-  // a broken connection string is obvious at startup instead of at migration
-  // time. Never blocks the server, and never logs the password.
+  // PRODUCTION DATABASE (Step 6). ROUTE_PLUS_DB_MODE chooses which backend
+  // actually serves requests; runtime.mode is that answer. When PostgreSQL is
+  // configured we also report whether it is reachable and what it has
+  // installed, so a broken connection string is obvious at startup instead of
+  // at migration time. Never blocks the server, and never logs the password.
   if (config.postgresConfigured) {
     import('./db/pg/client.js').then(async ({ pgConfig, checkConnection, describeConnection }) => {
       const pg = pgConfig(env);
       const check = await checkConnection(pg);
-      if (check.ok) logger.info('postgres', { connection: describeConnection(pg), server: check.server, spatial: check.spatial, postgis: check.postgis, servingRequests: 'sqlite' });
+      if (check.ok) logger.info('postgres', { connection: describeConnection(pg), server: check.server, spatial: check.spatial, postgis: check.postgis, servingRequests: runtime.mode });
       else logger.warn('postgres not reachable', { connection: describeConnection(pg), reason: check.reason });
     }).catch(error => logger.warn('postgres check failed', { reason: error.message }));
   }
+  // Every job in jobs.js is async and backend-aware, so the hourly
+  // maintenance run belongs on PostgreSQL too: gating it on SQLite meant
+  // expired sessions were never purged and daily_metrics never rolled up in
+  // postgres mode. The jobs are idempotent (DELETE expired, UPSERT the day's
+  // counts, UPDATE ... WHERE flagged = FALSE), so a second instance or an
+  // external `npm run worker` running alongside is safe.
   const stopJobs = startScheduledJobs(db, logger);
   server.headersTimeout = 20_000;
   server.requestTimeout = 60_000;
@@ -58,11 +69,25 @@ export async function startServer(overrides = {}, env = process.env, { fetchImpl
       let closing = null;
       const close = () => (closing ||= new Promise(done => {
         stopJobs();
-        const finish = () => { try { db.close(); } catch { /* already closed */ } done(); };
+        const finish = async () => {
+          try {
+            await runtime.close();
+          } catch {
+            /* already closed */
+          }
+          done();
+        };
         // Stop accepting, let in-flight requests finish, then give up waiting so
         // a restart can never hang on one slow connection.
-        const timer = setTimeout(() => { server.closeAllConnections?.(); finish(); }, config.shutdownTimeoutMs);
-        server.close(() => { clearTimeout(timer); finish(); });
+        const timer = setTimeout(() => {
+          server.closeAllConnections?.();
+          finish();
+        }, config.shutdownTimeoutMs);
+
+        server.close(() => {
+          clearTimeout(timer);
+          finish();
+        });
       }));
       resolve({ server, port, db, app, providers, config, warnings: configWarnings, close });
     });

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="ROUTE+ keeps your main route and shows worthwhile stops along the way — with the extra kilometres and time before you say yes.">
-  <meta name="theme-color" content="#fbf8f1">
-  <title>ROUTE+ — Keep the route. Discover more.</title>
+  <meta name="theme-color" content="#FBF7EF">
+  <title>ROUTE+ — Discover more without losing your route.</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23b54d23'/%3E%3Ctext x='7' y='29' font-family='Arial' font-weight='900' font-size='26' fill='white'%3ER%3C/text%3E%3C/svg%3E">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/tokens.css">
@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/dialogs.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <!-- Depth and motion layer: loaded last so it enhances the components the
+       stylesheets above lay out. Removing it leaves the product working. -->
+  <link rel="stylesheet" href="css/royal.css">
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -36,28 +39,89 @@
     <div id="landing">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <span class="eyebrow"><span class="sun" aria-hidden="true">✳</span> ROUTE-AWARE DISCOVERY FOR INDIAN ROAD TRIPS</span>
-          <h1 id="hero-title">Your destination is the plan.<br><em>Everything worth discovering along the way is the opportunity.</em></h1>
-          <p>Keep your main route. Find meaningful stops. Know the extra time before you say yes.</p>
-          <div class="hero-actions">
+          <span class="eyebrow" data-reveal><span class="sun" aria-hidden="true">✳</span> ROUTE-AWARE DISCOVERY FOR INDIAN ROAD TRIPS</span>
+          <h1 id="hero-title" data-reveal>Discover More<br><em>Without Losing Your Route.</em></h1>
+          <p data-reveal>Enter your journey. See the waterfalls, temples, forts and viewpoints that sit beside that road — each with the extra kilometres and minutes it costs. Then decide.</p>
+          <div class="hero-actions" data-reveal>
             <button class="button primary" data-action="start">Start Your Journey <span aria-hidden="true">→</span></button>
             <button class="button" data-action="how">How It Works</button>
           </div>
-          <div class="hero-foot"><svg class="mini-route" viewBox="0 0 120 30" aria-hidden="true"><path d="M8 20 H112" stroke="currentColor" stroke-width="3"/><path d="M60 20 Q70 4 86 6" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" fill="none"/><circle cx="8" cy="20" r="5" fill="currentColor"/><circle cx="112" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="86" cy="6" r="4" fill="currentColor"/></svg> Your route stays yours. Every stop is a choice.</div>
+          <div class="hero-foot" data-reveal><svg class="mini-route" viewBox="0 0 120 30" aria-hidden="true"><path d="M8 20 H112" stroke="currentColor" stroke-width="3"/><path d="M60 20 Q70 4 86 6" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" fill="none"/><circle cx="8" cy="20" r="5" fill="currentColor"/><circle cx="112" cy="20" r="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="86" cy="6" r="4" fill="currentColor"/></svg> Your route stays yours. Every stop is a choice.</div>
         </div>
-        <div class="hero-image">
-          <img src="assets/images/hero.jpg" width="1400" height="933" alt="Illustrative artwork of a winding mountain road through a green Himalayan-style valley at golden hour">
-          <div class="image-top"><span>THE ROAD IS ONLY THE BEGINNING</span></div>
-          <div class="image-note">
+
+        <!-- LAYERED LANDSCAPE.
+             Five planes at different parallax rates: sun glow and far ridges
+             behind, the project's own photograph as the middle distance, then
+             mist, the route ribbon, and the caption plate in front. All vector
+             except the photograph, so depth costs no extra download. -->
+        <div class="hero-image hero-scene" data-tilt>
+          <span class="hero-sun" data-parallax="0.12" aria-hidden="true"></span>
+
+          <div class="hero-layer" data-parallax="0.22" aria-hidden="true">
+            <svg viewBox="0 0 1400 933" preserveAspectRatio="xMidYMax slice">
+              <!-- far ridge line -->
+              <path d="M0 470 L150 392 L268 436 L420 340 L560 404 L700 322 L852 390 L1000 336 L1160 404 L1290 360 L1400 414 V933 H0Z"
+                    fill="#C9C3AC" opacity=".55"/>
+            </svg>
+          </div>
+
+          <div class="hero-layer" data-parallax="0.34" aria-hidden="true">
+            <svg viewBox="0 0 1400 933" preserveAspectRatio="xMidYMax slice">
+              <!-- middle hills, forest green washed back by distance -->
+              <path d="M0 560 L180 486 L330 540 L470 450 L640 528 L800 452 L960 530 L1120 470 L1270 536 L1400 492 V933 H0Z"
+                    fill="#6E7E68" opacity=".42"/>
+              <!-- a hilltop temple silhouette: śikhara, not a generic dome -->
+              <g fill="#5B6A58" opacity=".6" transform="translate(792 392)">
+                <path d="M0 60 H64 L58 36 Q32 -16 6 36 Z"/>
+                <rect x="24" y="-2" width="16" height="12" rx="3"/>
+                <path d="M32 -16 L36 -2 H28 Z"/>
+                <rect x="-6" y="60" width="76" height="8" rx="3"/>
+              </g>
+            </svg>
+          </div>
+
+          <img class="hero-photo" src="assets/images/hero.jpg" width="1400" height="933"
+               alt="A winding road through a green Himalayan valley at golden hour, with forested ridges rising on both sides">
+
+          <div class="hero-layer" data-parallax="0.52" aria-hidden="true">
+            <svg viewBox="0 0 1400 933" preserveAspectRatio="xMidYMax slice">
+              <!-- a cascade falling into the valley on the left -->
+              <g opacity=".5">
+                <path d="M196 404 Q206 520 184 616 Q176 672 196 724" stroke="#F3F6F4" stroke-width="13" fill="none" stroke-linecap="round"/>
+                <path d="M212 408 Q222 524 200 620 Q192 676 212 728" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>
+                <ellipse cx="200" cy="742" rx="54" ry="13" fill="#FFFFFF" opacity=".45"/>
+              </g>
+              <!-- foreground conifers, the nearest plane -->
+              <g fill="#2E4639" opacity=".72">
+                <path d="M60 933 L60 790 L26 860 L48 860 L20 904 L100 904 L72 860 L94 860 Z"/>
+                <path d="M1332 933 L1332 764 L1292 844 L1318 844 L1284 896 L1380 896 L1346 844 L1372 844 Z"/>
+              </g>
+            </svg>
+          </div>
+
+          <span class="hero-mist" aria-hidden="true"></span>
+
+          <!-- The product's own idea, drawn once: solid gold main route,
+               dashed forest detour out to a stop and back. -->
+          <svg class="hero-ribbon" viewBox="0 0 1400 933" preserveAspectRatio="none" aria-hidden="true">
+            <path class="casing" d="M90 820 Q420 760 620 672 Q860 566 1340 500"/>
+            <path class="main draw" d="M90 820 Q420 760 620 672 Q860 566 1340 500"/>
+            <path class="spur draw" d="M636 664 Q700 584 792 452" />
+            <circle class="pin" cx="792" cy="452" r="11"/>
+            <circle class="pin" cx="90" cy="820" r="12"/>
+            <circle class="pin-hollow" cx="1340" cy="500" r="12"/>
+          </svg>
+
+          <div class="hero-plate" data-reveal>
             <span class="eyebrow">MORE THAN A WAY THERE</span>
-            <h2>Make room for<br>the unexpected.</h2>
-            <p>One journey. A few worthwhile possibilities.</p>
+            <h2>The detour, priced.</h2>
+            <p>Solid gold is your route. The dashed line is a choice — shown with what it adds, before you take it.</p>
           </div>
         </div>
       </section>
 
       <section class="entry" id="journey" aria-labelledby="entry-title">
-        <div class="section-intro">
+        <div class="section-intro" data-reveal>
           <div>
             <span class="eyebrow">YOUR NEXT JOURNEY</span>
             <h2 id="entry-title">Where are you headed?</h2>
@@ -102,14 +166,14 @@
       </section>
 
       <section id="how" class="how" aria-labelledby="how-title">
-        <div class="how-head">
+        <div class="how-head" data-reveal>
           <span class="eyebrow">KEEP THE ROUTE. DISCOVER MORE.</span>
           <h2 id="how-title">A detour should be<br>worth your while.</h2>
         </div>
-        <article><span>01</span><h3>Enter Your Journey</h3><p>Tell us where you start, where you are going, how long you have and what you love.</p></article>
-        <article><span>02</span><h3>Discover Along the Route</h3><p>We split the road into corridors and surface places that suit your group and interests.</p></article>
-        <article><span>03</span><h3>Understand the Detour</h3><p>Every stop shows extra kilometres, extra driving and time at the place — before you commit.</p></article>
-        <article><span>04</span><h3>Choose Your Experience</h3><p>Add or skip. Your trip recalculates, and you decide whether to keep or extend your days.</p></article>
+        <article data-reveal data-reveal-group="how" data-tilt><span>01</span><h3>Enter Your Journey</h3><p>Tell us where you start, where you are going, how long you have and what you love.</p></article>
+        <article data-reveal data-reveal-group="how" data-tilt><span>02</span><h3>Discover Along the Route</h3><p>We split the road into corridors and surface places that suit your group and interests.</p></article>
+        <article data-reveal data-reveal-group="how" data-tilt><span>03</span><h3>Understand the Detour</h3><p>Every stop shows extra kilometres, extra driving and time at the place — before you commit.</p></article>
+        <article data-reveal data-reveal-group="how" data-tilt><span>04</span><h3>Choose Your Experience</h3><p>Add or skip. Your trip recalculates, and you decide whether to keep or extend your days.</p></article>
       </section>
     </div>
 

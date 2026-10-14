@@ -53,6 +53,40 @@ the app runs on offline route data and the curated catalogue and says so.
 `PUBLIC_URL` is what turns on Secure cookies, HSTS and the same-origin check for
 writes, so set it as soon as the domain exists and redeploy.
 
+## Step 3b — PostgreSQL instead of the volume (optional)
+
+Step 3 deploys on SQLite, which is why it needs the volume. To run on PostgreSQL
+instead, the volume is not required at all and these variables replace
+`ROUTE_PLUS_DB`:
+
+| Variable | Value |
+|---|---|
+| `ROUTE_PLUS_DB_MODE` | `postgres` — **this** is the switch; filling in `DATABASE_URL` alone changes nothing |
+| `DATABASE_URL` | Railway's PostgreSQL plugin exposes this; reference it rather than pasting a password |
+
+Order matters. Migrate **before** flipping the mode, or the first request hits an
+empty database:
+
+1. Add the PostgreSQL service (Railway: New → Database → PostgreSQL). If you need
+   the spatial index, use a PostGIS image — ROUTE+ works without PostGIS and
+   falls back to `earthdistance`, then to a bounding box.
+2. From a machine that can reach it: `npm run db:pg -- status`, then
+   `npm run db:pg -- migrate`, then `npm run db:pg -- seed`.
+   To carry an existing SQLite database over: `npm run db:pg -- import <file>`.
+3. Set the two variables above and redeploy.
+4. `/api/health` must report `"database": "ok"`, and the `postgres` startup log
+   line must now say `servingRequests: postgres`.
+
+Two things to know before you rely on it:
+
+- **Backups need client tools this image does not carry.** `npm run db:backup`
+  shells out to `pg_dump`; in the container it exits 3 until you uncomment the
+  `postgresql<major>-client` line in the `Dockerfile` and rebuild. Running the
+  backup from your own machine against `DATABASE_URL` works without that.
+- **`numReplicas` stays 1** for now. Nothing in ROUTE+ prevents more, but the
+  hourly maintenance jobs run in-process on every instance; they are idempotent,
+  so extra replicas duplicate work rather than corrupting anything.
+
 ## Step 4 — public domain
 
 Service → Settings → Networking → **Generate Domain**. Railway returns

@@ -24,6 +24,28 @@ SHUTDOWN_TIMEOUT_MS=10000
 # Only behind a reverse proxy YOU control that sets X-Forwarded-For.
 # TRUST_PROXY=1
 
+# ---- Which database actually serves requests --------------------------------
+# sqlite (default) or postgres. THIS is the switch: the PG* variables below
+# being filled in does NOT move the app off SQLite on its own.
+#   sqlite   -> ROUTE_PLUS_DB above is the live database
+#   postgres -> the PG*/DATABASE_URL connection below is the live database,
+#               and ROUTE_PLUS_DB is ignored
+# Before switching, run:  npm run db:pg -- migrate  &&  npm run db:pg -- seed
+# ROUTE_PLUS_DB_MODE=postgres
+
+# ---- PostgreSQL connection (only read when the mode above is postgres, or
+# ---- for the startup reachability report) -----------------------------------
+# Either one DSN:
+# DATABASE_URL=postgres://user:password@host:5432/routeplus?sslmode=require
+# ...or the discrete variables (special characters need no escaping here):
+# PGHOST=
+# PGPORT=5432
+# PGDATABASE=routeplus
+# PGUSER=routeplus
+# PGPASSWORD=
+# PGSSLMODE=require
+# PGPOOL_SIZE=4
+
 # ---- Live map providers (all optional; the app runs without them) ----------
 # The OpenStreetMap usage policy requires an identifying contact address.
 ROUTE_PLUS_CONTACT=you@example.com
@@ -41,3 +63,49 @@ ROUTE_PLUS_CONTACT=you@example.com
 # GOOGLE_MAPS_BROWSER_KEY=
 # ROUTE_PROVIDER=google
 # GEOCODING_PROVIDER=google
+
+# ============================================================================
+# COMPLETE VARIABLE REFERENCE
+# Everything above is what a deployment normally sets. The rest of the
+# variables ROUTE+ reads are listed here so nothing is undocumented; each has a
+# working default and can be left out.
+# ============================================================================
+
+# ---- security -------------------------------------------------------------
+# Force Secure cookies + HSTS without setting PUBLIC_URL. An https:// PUBLIC_URL
+# already turns both on, so you rarely need this; use it only when TLS is
+# terminated in front of the app and PUBLIC_URL cannot be set.
+# SECURE_COOKIES=1
+
+# ---- PostgreSQL connection tuning (only read in postgres mode) ------------
+# POSTGRES_URL is accepted as an alias for DATABASE_URL.
+# POSTGRES_URL=
+# PGPOOL_SIZE=4                      # pooled connections (default 4)
+# PGAPPNAME=route-plus               # application_name shown in pg_stat_activity
+# PGCONNECT_TIMEOUT_MS=10000         # connect timeout
+# PG_STATEMENT_TIMEOUT_MS=30000      # per-statement timeout
+
+# ---- backup / restore -----------------------------------------------------
+# Only needed when pg_dump / pg_restore are installed but NOT on PATH — the
+# usual case on Windows, and when PostgreSQL only exists inside Docker.
+# They must not be older than the server they talk to.
+# PG_DUMP=C:\Program Files\PostgreSQL\16\bin\pg_dump.exe
+# PG_RESTORE=C:\Program Files\PostgreSQL\16\bin\pg_restore.exe
+
+# ---- OpenStreetMap service endpoints (only used by those providers) -------
+# Defaults are the public instances: fair use, no SLA. Self-host before real
+# traffic. Each of these is ignored unless the matching *_PROVIDER selects it.
+# OSRM_URL=https://router.project-osrm.org
+# OSRM_DURATION_FACTOR=1.2           # public OSRM is optimistic on Indian roads
+# NOMINATIM_URL=https://nominatim.openstreetmap.org
+# OVERPASS_URL=https://overpass-api.de/api/interpreter
+# OVERPASS_CHUNK_KM=120              # km of route per Overpass request
+
+# ---- performance ----------------------------------------------------------
+# CACHE_TTL_HOURS=12                 # provider response cache lifetime
+
+# ---- test-only (NEVER needed by a running server) -------------------------
+# ROUTE_PLUS_PG_TEST_URL  enables the PostgreSQL integration tests. It must point
+#   at a THROWAWAY database: the tests create and drop databases beside it.
+#   Keep it out of a production .env — `npm test` reads it from the shell.
+# BASE_URL  set by scripts/run-e2e.mjs for the browser tests. Never set by hand.

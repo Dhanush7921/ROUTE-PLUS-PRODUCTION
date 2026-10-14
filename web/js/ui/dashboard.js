@@ -61,7 +61,7 @@ export function renderPhases(plan, state, countsByPhase) {
 
 function cardHTML(p, index) {
   const who = p.suitableFor.slice(0, 3).join(', ');
-  return `<article class="card" style="animation-delay:${Math.min(index, 6) * 40}ms" aria-labelledby="card-${escapeHTML(p.id)}">
+  return `<article class="card" data-reveal data-reveal-group="cards" data-tilt style="animation-delay:${Math.min(index, 6) * 40}ms" aria-labelledby="card-${escapeHTML(p.id)}">
     <div class="card-image">
       <img src="${placeImage(p)}" alt="${escapeHTML(p.imageAlt || `Illustration of a ${categoryLabel(p.category).toLowerCase()}`)}" loading="lazy">
       <span class="tag">${escapeHTML(categoryLabel(p.category))}</span>

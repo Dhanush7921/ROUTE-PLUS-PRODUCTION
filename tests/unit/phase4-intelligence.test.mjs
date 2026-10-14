@@ -63,12 +63,12 @@ test('jobs: purge sessions, flag low-value places, aggregate metrics, ingest new
   const db = openDatabase(':memory:');
   db.prepare("INSERT INTO users (id, email, password_hash, display_name, created_at, updated_at) VALUES ('u', 'u@x.io', 'x', 'U', 'now', 'now')").run();
   db.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES ('old', 'u', 'x', '2000-01-01T00:00:00Z'), ('new', 'u', 'x', '2999-01-01T00:00:00Z')").run();
-  assert.equal(purgeSessions(db), 1);
+  assert.equal(await purgeSessions(db), 1);
   for (let i = 0; i < 5; i++) db.prepare("INSERT INTO feedback (place_id, visited, worth_it, created_at) VALUES ('curated:behror-midway', 1, 0, 'now')").run();
-  assert.equal(reviewPlaces(db), 1);
+  assert.equal(await reviewPlaces(db), 1);
   assert.equal(placesRepo(db).get('curated:behror-midway').flagged, true);
   db.prepare("INSERT INTO analytics_events (name, props, created_at) VALUES ('discovery_added', '{}', '2026-09-01T10:00:00Z')").run();
-  assert.equal(aggregateMetrics(db), 1);
+  assert.equal(await aggregateMetrics(db), 1);
   const fakeOsm = { name: 'osm', searchCorridor: async () => [
     { id: 'osm:node/1', name: 'Amber Fort', category: 'heritage', lat: 26.9855, lng: 75.8513, source: { provider: 'openstreetmap' } }, // duplicate of curated
     { id: 'osm:node/2', name: 'New Stepwell', category: 'heritage', lat: 27.0, lng: 76.0, source: { provider: 'openstreetmap' } }

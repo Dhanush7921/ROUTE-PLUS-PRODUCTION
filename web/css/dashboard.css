@@ -42,7 +42,7 @@
 .map .marker.added .pin { background: var(--on-dark); color: var(--primary); }
 .map .marker.compact .marker-name { display: none; }
 .map .marker.compact { padding: 6px; }
-.map .you-are-here { position: absolute; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #2c6fd6; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(44,111,214,.25); }
+.map .you-are-here { position: absolute; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: var(--gps); border: 3px solid var(--porcelain); box-shadow: 0 0 0 6px rgba(44,111,214,.25); }
 
 .map-legend { display: flex; flex-wrap: wrap; gap: var(--s5); margin: var(--s3) 0 var(--s5); font-size: var(--fs-xs); color: var(--muted); }
 .map-legend span { display: inline-flex; align-items: center; gap: var(--s2); }

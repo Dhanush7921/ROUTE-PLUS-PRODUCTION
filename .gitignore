@@ -6,3 +6,16 @@
 /data/
 *.sqlite*
 .env
+
+# Backups hold every tester's account, trip and feedback. `*.sqlite*` above
+# already covers a SQLite backup; a pg_dump is a .dump and would otherwise be
+# committed by `git add .`. Left unanchored on purpose — a dump is dangerous to
+# commit from anywhere in the tree, not only from the default directory.
+/backups/
+*.dump
+*.dump.part
+*.dump.json
+
+# Release archives: a zip of the whole project inside the project is 1.7 MB of
+# binary that git would keep forever, and re-adds every file a second time.
+*.zip

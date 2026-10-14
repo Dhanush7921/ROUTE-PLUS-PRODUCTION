@@ -76,7 +76,7 @@ The day simulation (07:00 start, ≤ 9 h driving, 15-min breaks every 2.5 h, no 
 | Static files | Path normalisation blocks `..` (including encoded) traversal |
 | Audit | Sign-ups, logins, trip changes and every admin action are written to `audit_log` |
 
-For production: put it behind HTTPS (Caddy or nginx), run `sqlite3 routeplus.sqlite ".backup backup.sqlite"` nightly (or use managed PostgreSQL backups), and ship the JSON logs to your log platform.
+For production: put it behind HTTPS (Caddy or nginx), schedule `npm run db:backup` nightly and `npm run db:restore:verify` against the newest backup (both follow `ROUTE_PLUS_DB_MODE`, so the same two commands cover SQLite and PostgreSQL), and ship the JSON logs to your log platform.
 
 ## Caching
 - Geocoding and main routes: an LRU cache in memory (TTL `CACHE_TTL_HOURS`), keyed by the query or the rounded coordinates.

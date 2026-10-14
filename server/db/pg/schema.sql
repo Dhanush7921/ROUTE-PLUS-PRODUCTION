@@ -247,6 +247,18 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 CREATE INDEX IF NOT EXISTS events_name_time ON analytics_events (name, created_at);
 CREATE INDEX IF NOT EXISTS events_place ON analytics_events (place_id);
 
+-- Daily roll-up of analytics_events, written by the aggregateMetrics job. It is
+-- derived data — the job can always rebuild it — but declaring it here means a
+-- migrated database has it from the start, exactly like every other table. The
+-- job also creates it IF NOT EXISTS, so a worker still runs against a database
+-- migrated before this line existed.
+CREATE TABLE IF NOT EXISTS daily_metrics (
+  day   TEXT NOT NULL,                  -- 'YYYY-MM-DD', the same key SQLite uses
+  name  TEXT NOT NULL,
+  count BIGINT NOT NULL,
+  PRIMARY KEY (day, name)
+);
+
 CREATE TABLE IF NOT EXISTS audit_log (
   id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id    TEXT,

@@ -17,7 +17,19 @@ test('standalone file: styled, images inline, full journey works offline via fil
   page.on('pageerror', e => problems.push(e.message));
   page.on('requestfailed', r => problems.push(`failed: ${r.url().slice(0, 60)}`));
   await page.goto(pathToFileURL(path.resolve('dist/route-plus-standalone.html')).href);
-  assert.equal(await page.$eval('body', el => getComputedStyle(el).backgroundColor), 'rgb(251, 248, 241)');
+  // Token-based, so a re-tint does not fail the "is it styled at all" check.
+  assert.equal(
+    await page.$eval('body', el => getComputedStyle(el).backgroundColor),
+    await page.evaluate(() => {
+      const probe = document.createElement('i');
+      probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      document.body.append(probe);
+      const out = getComputedStyle(probe).color;
+      probe.remove();
+      return out;
+    }),
+    'the inlined stylesheet is applied'
+  );
   assert.ok(await page.$eval('.hero-image img', img => img.naturalWidth > 0));
   await page.fill('[name=origin]', 'Chennai');
   await page.fill('[name=destination]', 'Ooty');

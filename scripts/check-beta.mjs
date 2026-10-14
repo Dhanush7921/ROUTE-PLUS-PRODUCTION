@@ -96,9 +96,22 @@ try {
   // production deployment, or this check fails on the very rule it is here to
   // verify. The real configuration was already validated above, from the actual
   // environment, with NODE_ENV untouched.
+  // …and it must run on the THROWAWAY SQLite file below, never on the operator's
+  // real database. The server picks its backend from ROUTE_PLUS_DB_MODE, so on a
+  // machine configured for PostgreSQL this harness would otherwise connect to the
+  // production database and run its beta walk — sign-ups, trips, and a deliberate
+  // burst of requests to prove rate limiting — against live tester data. The
+  // dbPath below would be silently ignored. Pin the mode and drop the connection
+  // variables for the harness process only; the real configuration was already
+  // validated above, from the untouched environment.
+  const harnessEnv = { ...process.env, NODE_ENV: 'test', ROUTE_PLUS_DB_MODE: 'sqlite' };
+  for (const key of ['DATABASE_URL', 'POSTGRES_URL', 'PGHOST', 'PGPORT', 'PGDATABASE', 'PGUSER', 'PGPASSWORD']) {
+    delete harnessEnv[key];
+  }
+
   srv = await startServer(
     { port: 0, host: '127.0.0.1', dbPath: path.join(dir, 'beta.sqlite'), logLevel: 'silent' },
-    { ...process.env, NODE_ENV: 'test' }
+    harnessEnv
   );
   const base = `http://127.0.0.1:${srv.port}`;
   const jar = [];

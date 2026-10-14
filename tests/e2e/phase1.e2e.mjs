@@ -28,12 +28,32 @@ test('landing page is fully styled with a working hero image', { skip }, async (
   const { page, problems, ctx } = await openApp(browser, { url: APP_URL });
   const font = await page.$eval('h1', el => getComputedStyle(el).fontFamily);
   assert.match(font, /Georgia/);
-  const bg = await page.$eval('body', el => getComputedStyle(el).backgroundColor);
-  assert.equal(bg, 'rgb(251, 248, 241)');
+  // Compare against the TOKENS, not a frozen palette. What this check is for
+  // is that tokens.css loaded and the components resolve it — which stays true
+  // across a re-tint. Hard-coded literals only proved what the palette was in
+  // the week the test was written.
+  const tone = await page.evaluate(() => {
+    const token = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const asRgb = value => {
+      const probe = document.createElement('i');
+      probe.style.color = value;
+      document.body.append(probe);
+      const out = getComputedStyle(probe).color;
+      probe.remove();
+      return out;
+    };
+    return {
+      bodyBg: getComputedStyle(document.body).backgroundColor,
+      bgToken: asRgb(token('--bg')),
+      primaryBg: getComputedStyle(document.querySelector('.hero .button.primary')).backgroundColor,
+      primaryToken: asRgb(token('--primary'))
+    };
+  });
+  assert.notEqual(tone.bgToken, 'rgba(0, 0, 0, 0)', 'tokens.css actually loaded');
+  assert.equal(tone.bodyBg, tone.bgToken, 'the page background is the --bg token');
   const heroLoaded = await page.$eval('.hero-image img', img => img.complete && img.naturalWidth > 0);
   assert.ok(heroLoaded, 'hero image loads');
-  const primaryBg = await page.$eval('.hero .button.primary', el => getComputedStyle(el).backgroundColor);
-  assert.equal(primaryBg, 'rgb(181, 77, 35)');
+  assert.equal(tone.primaryBg, tone.primaryToken, 'the primary action is the --primary token');
   assert.equal((await page.$$('.how article')).length, 4);
   assert.deepEqual(problems, []);
   await ctx.close();

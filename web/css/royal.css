@@ -1,0 +1,321 @@
+/* ROUTE+ — ROYAL NATURE depth and motion layer.
+   Loaded LAST, so it adds dimension and movement to the components the other
+   stylesheets already lay out. Nothing here changes a layout or a selector's
+   meaning: remove this file and the product still works, plainly.
+
+   Every effect obeys two rules:
+     1. content is visible without JavaScript and without animation — motion
+        only changes HOW it arrives, never WHETHER it is there;
+     2. transforms stay on compositor properties (transform/opacity) so a
+        low-powered phone is not asked to repaint on scroll. */
+
+/* ------------------------------------------------------------ editorial type */
+h1, h2, h3, .logo { letter-spacing: var(--ls-display); }
+h1, h2 { line-height: var(--lh-display); }
+.eyebrow {
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--primary-ink);
+}
+/* A hairline gold rule under section eyebrows — the editorial signature. */
+.section-intro .eyebrow::after,
+.how-head .eyebrow::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: var(--s2);
+  background: var(--gold-rule);
+}
+h1 em, h2 em { font-style: italic; color: var(--primary-ink); }
+
+/* ------------------------------------------------------------ paper grain
+   One repeating SVG turbulence tile at very low opacity. It stops the large
+   ivory areas reading as flat #FBF7EF and costs nothing to paint. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  /* Behind every sibling, WITHOUT giving them a stacking position of their own:
+     `body > *` with position:relative silently overrode position:fixed on the
+     mobile bottom sheet and un-anchored it. */
+  z-index: -1;
+  pointer-events: none;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------ 3D surfaces
+   `.lift` is the shared recipe for anything that should read as a physical
+   card: contact + ambient shadow, a hairline inner highlight along the top
+   edge, and a gloss sheen that only exists on the upper 40%. */
+.card, .selected, .summary > *, .how article, .detail-dialog, dialog, .phases button {
+  box-shadow: var(--shadow-sm), var(--shadow-inset);
+  transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.card, .how article {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.card::after, .how article::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 42%;
+  background: var(--gloss);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Hover/focus lift. Keyboard focus gets the same lift as the mouse, so the
+   two ways of using the product feel the same. */
+.card:hover, .card:focus-within,
+.how article:hover {
+  transform: var(--lift);
+  box-shadow: var(--shadow), var(--shadow-inset);
+}
+
+/* Pointer-driven tilt. motion.js sets --rx/--ry per card; with no JS, or with
+   reduced motion, both are 0 and this collapses to the plain lift above. */
+.tilt {
+  --rx: 0deg; --ry: 0deg;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt:hover {
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-3px);
+}
+.tilt > * { transform: translateZ(0); }
+
+/* ------------------------------------------------------------ hero scene
+   A layered landscape: photographic mid-ground (a real project asset) with
+   SVG depth planes in front of and behind it. Each plane is translated by
+   motion.js at its own rate, which is what produces the sense of distance. */
+.hero-scene {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(176deg, #F7EFDD 0%, #F2E4C9 38%, #E9DCC0 62%, #DCD2BA 100%);
+}
+.hero-layer {
+  position: absolute;
+  inset: -4% -2%;
+  will-change: transform;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: 102% auto;
+}
+.hero-layer svg { width: 100%; height: 100%; display: block; }
+.hero-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The photograph is the middle distance: warmed and slightly desaturated so
+     the gold and forest layers in front of it stay the loudest thing. */
+  filter: saturate(.92) contrast(1.04) sepia(.06);
+  mix-blend-mode: multiply;
+  opacity: .96;
+}
+/* Sun glow, behind everything, breathing very slowly. */
+.hero-sun {
+  position: absolute;
+  top: 12%; left: 62%;
+  width: 34%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233,154,53,.55), rgba(216,177,106,.22) 42%, transparent 70%);
+  animation: sun-breathe 9s var(--ease) infinite alternate;
+  pointer-events: none;
+}
+@keyframes sun-breathe { from { transform: scale(1); opacity: .75; } to { transform: scale(1.08); opacity: 1; } }
+/* Mist drifting across the valley floor. */
+.hero-mist {
+  position: absolute;
+  inset: auto 0 0;
+  height: 38%;
+  background: linear-gradient(0deg, rgba(251,247,239,.92), rgba(251,247,239,.35) 45%, transparent);
+  pointer-events: none;
+}
+.hero-mist::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 70% at 20% 90%, rgba(255,255,255,.75), transparent 70%),
+              radial-gradient(50% 60% at 78% 95%, rgba(255,255,255,.6), transparent 70%);
+  animation: mist-drift 22s linear infinite alternate;
+}
+@keyframes mist-drift { from { transform: translateX(-3%); } to { transform: translateX(3%); } }
+
+/* The route ribbon drawn over the scene: the product's own idea, visualised.
+   Solid gold main line, dashed forest detour, exactly as the map renders it. */
+.hero-ribbon { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-ribbon .main { stroke: var(--route-main); stroke-width: 3.2; fill: none; stroke-linecap: round;
+  filter: drop-shadow(0 1px 2px rgba(60,42,20,.35)); }
+.hero-ribbon .casing { stroke: rgba(255,255,255,.9); stroke-width: 7; fill: none; stroke-linecap: round; }
+.hero-ribbon .spur { stroke: var(--route-detour); stroke-width: 2; fill: none; stroke-dasharray: 5 5; stroke-linecap: round; }
+.hero-ribbon .pin { fill: var(--route-selected); }
+.hero-ribbon .pin-hollow { fill: #fff; stroke: var(--route-main); stroke-width: 2.4; }
+/* The line draws itself once on arrival, then stops. */
+.hero-ribbon .draw { stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw 1.6s var(--ease-out) .35s forwards; }
+.hero-ribbon .spur.draw { stroke-dasharray: 5 5; stroke-dashoffset: 0; opacity: 0; animation: spur-in .5s var(--ease-out) 1.5s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes spur-in { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-ribbon .draw { stroke-dashoffset: 0; animation: none; }
+  .hero-ribbon .spur.draw { opacity: 1; animation: none; }
+  .hero-sun, .hero-mist::after { animation: none; }
+}
+
+/* The caption plate sitting on the scene. */
+.hero-plate {
+  position: absolute;
+  inset: auto var(--s5) var(--s5) var(--s5);
+  padding: var(--s4) var(--s5);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 253, 248, .82);
+  backdrop-filter: blur(10px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, .8);
+  box-shadow: var(--shadow), var(--shadow-inset);
+  max-width: 30rem;
+}
+.hero-plate h2 { font-size: var(--fs-xl); margin: var(--s1) 0 var(--s2); }
+.hero-plate p { color: var(--muted); font-size: var(--fs-sm); margin: 0; }
+
+/* ------------------------------------------------------------ scroll reveal
+   The element is at rest in its final position; motion.js removes `.reveal`
+   once it has been seen. If the script never runs, `.revealed` is applied by
+   a no-JS fallback below, so content cannot get stuck invisible. */
+.reveal { opacity: 0; transform: translateY(18px); }
+.reveal.revealed,
+.no-motion .reveal { opacity: 1; transform: none; }
+.reveal { transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out); }
+/* Children stagger by index, set by motion.js as --i. */
+.reveal { transition-delay: calc(var(--i, 0) * 70ms); }
+
+/* ------------------------------------------------------------ parallax shell */
+.parallax { will-change: transform; }
+
+/* ------------------------------------------------------------ micro-interactions */
+.button {
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t) var(--ease), background var(--t-fast) var(--ease);
+}
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 50%;
+  background: var(--gloss);
+  opacity: .5;
+  pointer-events: none;
+}
+.button:hover:not(:disabled) { transform: var(--lift); box-shadow: var(--shadow); }
+.button:active:not(:disabled) { transform: translateY(0) scale(.985); box-shadow: var(--shadow-sm); }
+.button.primary, .button.dark { box-shadow: var(--shadow-sm); }
+/* A gold sweep across the primary action on hover — one pass, not a loop. */
+.button.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,.38) 48%, transparent 76%);
+  transform: translateX(-120%);
+  transition: transform var(--t-slow) var(--ease-out);
+  pointer-events: none;
+}
+.button.primary:hover:not(:disabled)::after { transform: translateX(120%); }
+
+/* Busy state for anything that waits on the network. */
+.button[aria-busy="true"] { pointer-events: none; opacity: .75; }
+.button[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, transparent 0 10px, rgba(255,255,255,.28) 10px 20px);
+  animation: busy 700ms linear infinite;
+  transform: none;
+}
+@keyframes busy { to { background-position: 28px 0; } }
+
+/* Chips, filters and nav share one interaction language. */
+.chips label, .chips button, #filters label select, .phases button {
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t) var(--ease),
+              background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.chips label:hover, .chips button:hover, .phases button:hover { transform: var(--lift); }
+
+nav button {
+  position: relative;
+  transition: color var(--t-fast) var(--ease);
+}
+/* The active/hover underline grows from the centre. */
+nav button::after {
+  content: "";
+  position: absolute;
+  left: 50%; right: 50%; bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--champagne);
+  transition: left var(--t) var(--ease), right var(--t) var(--ease);
+}
+nav button:hover::after, nav button:focus-visible::after, nav button[aria-current="true"]::after { left: 8%; right: 8%; }
+nav button[aria-current="true"] { color: var(--primary-ink); }
+
+/* Form fields: a gold focus ring and a touch of depth so the form feels
+   tactile rather than like a grey box. */
+input, select, textarea {
+  transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+input:hover:not(:focus), select:hover:not(:focus) { border-color: var(--border-strong); }
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+  outline: none;
+}
+.error:not(:empty) { animation: nudge var(--t) var(--ease); }
+@keyframes nudge { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+/* ------------------------------------------------------------ section rhythm */
+.how article { --i: 0; }
+.how article:nth-child(2) { --i: 1; }
+.how article:nth-child(3) { --i: 2; }
+.how article:nth-child(4) { --i: 3; }
+.how article span {
+  font-family: var(--font-display);
+  color: var(--champagne);
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+/* Dialogs arrive rather than appear. */
+dialog[open] { animation: dialog-in var(--t) var(--ease-out); }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(.985); } }
+dialog::backdrop { background: var(--backdrop); backdrop-filter: blur(3px); }
+
+/* Toast and impact bar slide from the edge they belong to. */
+#toast:not(:empty) { animation: toast-in var(--t) var(--ease-out); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(14px); } }
+.impact-bar:not([hidden]) { animation: toast-in var(--t) var(--ease-out); }
+
+/* ------------------------------------------------------------ map framing */
+.map-column { position: relative; }
+.map { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm), var(--shadow-inset); }
+.map .marker { transition: transform var(--t-fast) var(--ease), box-shadow var(--t) var(--ease); }
+.map .marker:hover, .map .marker:focus-visible { transform: translate(-50%, -50%) scale(1.12); z-index: 3; }
+.map .you-are-here { background: var(--gps); }
+
+/* ------------------------------------------------------------ touch + print */
+@media (hover: none) {
+  /* No hover lift on touch: it leaves cards stuck in the lifted state. */
+  .card:hover, .how article:hover, .button:hover:not(:disabled), .chips label:hover, .phases button:hover { transform: none; }
+  .tilt:hover { transform: none; }
+}
+@media print {
+  body::before, .hero-sun, .hero-mist, .hero-ribbon { display: none; }
+  .reveal { opacity: 1; transform: none; }
+}

@@ -6,6 +6,15 @@ FROM node:22-alpine
 # redeploy that replaces this image.
 RUN addgroup -S routeplus && adduser -S routeplus -G routeplus \
  && apk add --no-cache su-exec
+
+# POSTGRES MODE ONLY. `npm run db:backup` shells out to pg_dump, which this
+# image does not carry: in postgres mode the backup exits 3 ("pg_dump was not
+# found on PATH") until the client tools are installed. Uncomment the line
+# below, matching the MAJOR version of your server (pg_dump must not be older
+# than the server it reads), and rebuild. Alpine names the packages
+# postgresql16-client, postgresql17-client, and so on. Leave it commented for a
+# SQLite deployment — it is ~15 MB of image for nothing.
+# RUN apk add --no-cache postgresql16-client
 WORKDIR /app
 COPY --chown=routeplus:routeplus package.json ./
 COPY --chown=routeplus:routeplus server ./server
