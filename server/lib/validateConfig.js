@@ -93,13 +93,17 @@ export function validateConfig(config, env = process.env) {
       warnings.push('OVERPASS_URL is the public instance: fair use, no SLA. Set OVERPASS_FALLBACK_URL as a second option.');
     }
   }
-  if (production && /(^|\/)(tmp|var\/tmp|dev\/shm)\//.test(config.dbPath)) {
+  // ROUTE_PLUS_DB only matters when SQLite actually serves requests. In
+  // postgres mode these three fired anyway — a false alarm on every deploy,
+  // pointing at a file the app never opens.
+  const servesSqlite = String(env.ROUTE_PLUS_DB_MODE || 'sqlite').trim().toLowerCase() !== 'postgres';
+  if (production && servesSqlite && /(^|\/)(tmp|var\/tmp|dev\/shm)\//.test(config.dbPath)) {
     errors.push(`ROUTE_PLUS_DB points inside a temporary directory (${config.dbPath}). Users, trips and feedback would be lost on the next restart — use a persistent volume (see docs/DEPLOY.md).`);
   }
-  if (production && config.dbPath.startsWith(config.root)) {
+  if (production && servesSqlite && config.dbPath.startsWith(config.root)) {
     warnings.push(`ROUTE_PLUS_DB is inside the application directory (${config.dbPath}). A redeploy that replaces the app directory would replace the database with it — point it at a volume outside the code.`);
   }
-  if (production && config.dbPath === ':memory:') {
+  if (production && servesSqlite && config.dbPath === ':memory:') {
     errors.push('ROUTE_PLUS_DB is :memory: — nothing would be saved. Use a file on a persistent volume.');
   }
   if (config.postgresConfigured && !config.postgresUrlPresent && !env.PGPASSWORD) {

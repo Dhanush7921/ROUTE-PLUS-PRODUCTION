@@ -61,7 +61,7 @@ export async function startServer(overrides = {}, env = process.env, { fetchImpl
   return new Promise(resolve => {
     server.listen(config.port, config.host, () => {
       const { port } = server.address();
-      logger.info('ROUTE+ server started', { url: `http://${config.host}:${port}`, db: config.dbPath, providers: providers.summary });
+      logger.info('ROUTE+ server started', { url: `http://${config.host}:${port}`, db: runtime.mode === 'postgres' ? 'postgres' : config.dbPath, providers: providers.summary });
       for (const warning of providers.selection.warnings) logger.warn('provider selection', { warning });
       for (const warning of configWarnings) logger.warn('configuration', { warning });
 
