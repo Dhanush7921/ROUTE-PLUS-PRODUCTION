@@ -44,8 +44,10 @@ jobs:
           test -s site/index.html
           echo "ROUTE+ frontend artifact ready. Backend/API and PostgreSQL are not deployed by this workflow."
 
-      - name: Configure GitHub Pages
+      - name: Configure and enable GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload static website artifact
         uses: actions/upload-pages-artifact@v3
