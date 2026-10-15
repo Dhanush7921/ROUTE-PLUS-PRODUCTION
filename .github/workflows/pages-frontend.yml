@@ -1,0 +1,57 @@
+name: Deploy ROUTE+ static frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: route-plus-static-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    if: github.repository == 'Dhanush7921/ROUTE-PLUS-PRODUCTION'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out the existing ROUTE+ project
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build the existing standalone frontend
+        run: npm run build
+
+      - name: Prepare frontend-only Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/route-plus-standalone.html
+          mkdir -p site
+          cp dist/route-plus-standalone.html site/index.html
+          touch site/.nojekyll
+          test -s site/index.html
+          echo "ROUTE+ frontend artifact ready. Backend/API and PostgreSQL are not deployed by this workflow."
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy static website
+        id: deployment
+        uses: actions/deploy-pages@v4
